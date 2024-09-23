@@ -2,12 +2,20 @@ package hu.cubix.hr.zoltan_sipeki.model;
 
 import java.time.LocalDateTime;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
+
 public class Employee {
 	private long id;
-	String job;
-	int salary;
-	LocalDateTime firstDay;
+	private String job;
+	private int salary;
+
+	@DateTimeFormat(iso = ISO.DATE_TIME)
+	private LocalDateTime firstDay;
 	
+	public Employee() {
+	}
+
 	public Employee(long id, String job, int salary, LocalDateTime firstDay) {
 		super();
 		this.id = id;
