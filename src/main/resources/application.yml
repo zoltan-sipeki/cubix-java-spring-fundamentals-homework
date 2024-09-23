@@ -1,0 +1,16 @@
+---
+spring:
+ application:
+  name: "hr"
+ profiles:
+  active: "smart"
+ 
+salary:
+ years:
+  - 10
+  - 5
+  - 2.5
+ raisePercents:
+ - 10
+ - 5
+ - 2
