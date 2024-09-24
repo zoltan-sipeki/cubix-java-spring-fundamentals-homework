@@ -1,31 +1,59 @@
 package hu.cubix.hr.zoltan_sipeki.configuration;
 
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix="salary")
 public class SalaryConfiguration {
-	private double[] years;
-	private int[] raisePercents;
-	
-	public SalaryConfiguration(double[] years, int[] raisePercents) {
-		super();
-		this.years = years;
-		this.raisePercents = raisePercents;
+	private int defaultPercent;
+	private Smart smart;
+
+	public Smart getSmart() {
+		return smart;
 	}
-	public double[] getYears() {
-		return years;
+
+	public void setSmart(Smart smart) {
+		this.smart = smart;
 	}
-	public void setYears(double[] years) {
-		this.years = years;
+
+	public int getDefaultPercent() {
+		return defaultPercent;
 	}
-	public int[] getRaisePercents() {
-		return raisePercents;
+
+	public void setDefaultPercent(int defaultPercent) {
+		this.defaultPercent = defaultPercent;
 	}
-	public void setRaisePercents(int[] raisePercents) {
-		this.raisePercents = raisePercents;
+
+	public static class Smart {
+		private List<SalaryLimit> limits;
+
+		public List<SalaryLimit> getLimits() {
+			return limits;
+		}
+
+		public void setLimits(List<SalaryLimit> limits) {
+			this.limits = limits;
+		}
 	}
-	
-	
+
+	public static class SalaryLimit {
+		private double year;
+		private int percent;
+
+		public double getYear() {
+			return year;
+		}
+		public void setYear(double year) {
+			this.year = year;
+		}
+		public int getPercent() {
+			return percent;
+		}
+		public void setPercent(int percent) {
+			this.percent = percent;
+		}
+	}
 }

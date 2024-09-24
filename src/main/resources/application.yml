@@ -6,11 +6,12 @@ spring:
   active: "smart"
  
 salary:
- years:
-  - 10
-  - 5
-  - 2.5
- raisePercents:
- - 10
- - 5
- - 2
+  defaultPercent: 5
+  smart:
+    limits:
+    - year: 10
+      percent: 10
+    - year: 5
+      percent: 5
+    - year: 2.5
+      percent: 2
