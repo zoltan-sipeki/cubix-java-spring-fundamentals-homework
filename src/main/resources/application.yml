@@ -1,9 +1,15 @@
 ---
 spring:
- application:
-  name: "hr"
- profiles:
-  active: "smart"
+  application:
+    name: "hr"
+  profiles:
+    active: "smart"
+  thymeleaf:
+    cache: false
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
  
 salary:
   defaultPercent: 5

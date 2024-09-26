@@ -36,6 +36,17 @@ public class SalaryConfiguration {
 
 		public void setLimits(List<SalaryLimit> limits) {
 			this.limits = limits;
+			this.limits.sort((SalaryLimit a, SalaryLimit b) -> {
+				if (a.getYear() > b.getYear()) {
+					return -1;
+				}
+	
+				if (a.getYear() < b.getYear()) {
+					return 1;
+				}
+	
+				return 0;
+			});
 		}
 	}
 
@@ -54,6 +65,11 @@ public class SalaryConfiguration {
 		}
 		public void setPercent(int percent) {
 			this.percent = percent;
+		}
+
+		@Override
+		public String toString() {
+			return "year= " + year + ", percent= " + percent;
 		}
 	}
 }

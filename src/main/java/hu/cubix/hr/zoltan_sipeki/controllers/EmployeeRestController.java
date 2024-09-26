@@ -59,7 +59,7 @@ public class EmployeeRestController {
         }
 
         employees.put((employee.getId()), employee);
-        return ResponseEntity.created(URI.create("/employees/" + employee.getId())).build();
+        return ResponseEntity.created(URI.create("/api/employees/" + employee.getId())).build();
     }
     
     @PutMapping("/{id}")

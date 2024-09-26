@@ -18,6 +18,5 @@ public class SalaryService {
 		int salary = employee.getSalary();
 		int newSalary = (int)(salary + (double)(salary * raise / 100));
 		employee.setSalary(newSalary);
-		System.out.println("New salary for Employee " + employee.getId() + " (first day: " + employee.getFirstDay() + ") is " + employee.getSalary());
 	}
 }

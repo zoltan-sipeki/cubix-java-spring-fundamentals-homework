@@ -32,20 +32,10 @@ public class SmartEmployeeService implements EmployeeService {
 	@Override
 	public int getPayRaisePercent(Employee employee) {
 		List<SalaryLimit> limits = salaryConfig.getSmart().getLimits();
-		limits.sort((SalaryLimit a, SalaryLimit b) -> {
-			if (b.getYear() > a.getYear()) {
-				return -1;
-			}
-
-			if (b.getYear() < a.getYear()) {
-				return -1;
-			}
-
-			return 0;
-		});
+		
 
 		for (var limit : limits) {
-			long diff = ChronoUnit.YEARS.between(employee.getFirstDay(), LocalDateTime.now());
+			double diff = ChronoUnit.DAYS.between(employee.getFirstDay(), LocalDateTime.now()) / 365.0;
 			if (diff > limit.getYear()) {
 				return limit.getPercent();
 			}

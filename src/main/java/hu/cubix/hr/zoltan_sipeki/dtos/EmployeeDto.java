@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 public class EmployeeDto {
     private long id;
     private String job;
+    private String name;
     private int salary;
 
     @DateTimeFormat(iso = ISO.DATE_TIME)
@@ -22,6 +23,14 @@ public class EmployeeDto {
 		this.job = job;
 		this.salary = salary;
 		this.firstDay = firstDay;
+	}
+
+    public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
 	}
 
     public long getId() {
@@ -54,5 +63,15 @@ public class EmployeeDto {
 
     public void setFirstDay(LocalDateTime firstDay) {
         this.firstDay = firstDay;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+
+        EmployeeDto o = (EmployeeDto) other;
+        return id == o.id;
     }
 }
