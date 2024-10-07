@@ -82,8 +82,7 @@ public class EmployeeRestControllerIT {
         var employeesCreated = getEmployees();
         assertEquals(VALID_EMPLOYEES.length, employeesCreated.size());
 
-        boolean found = findEmployee(employeesCreated, employee);
-        assertEquals(false, found);
+        assertEquals(false, employeesCreated.contains(employee));
     }
 
     @Test
@@ -110,9 +109,7 @@ public class EmployeeRestControllerIT {
         var employees = getEmployees();
         assertEquals(VALID_EMPLOYEES.length, employees.size());
 
-        boolean found = findEmployee(employees, employee);
-
-        assertEquals(false, found);
+        assertEquals(false, employees.contains(employee));
     }
 
     @Test
@@ -124,19 +121,7 @@ public class EmployeeRestControllerIT {
         var employees = getEmployees();
         assertEquals(VALID_EMPLOYEES.length, employees.size());
 
-        boolean found = findEmployee(employees, employee);
-
-        assertEquals(true, found);
-    }
-
-    private boolean findEmployee(List<EmployeeDto> list, EmployeeDto employee) {
-        for (var e : list) {
-            if (e.equals(employee)) {
-                return true;
-            }
-        }
-
-        return false;
+        assertEquals(true, employees.contains(employee));
     }
 
     private ResponseSpec updateEmployee(EmployeeDto employee) {
