@@ -1,19 +1,19 @@
-package hu.cubix.hr.zoltan_sipeki.dtos;
+package hu.cubix.hr.zoltan_sipeki.model;
 
 import java.util.List;
 
-public class CompanyDto {
+public class Company {
     private long id;
     String registrationNumber;
     String name;
     String address;
-    List<EmployeeDto> employees;
+    List<Employee> employees;
 
-    public CompanyDto() {
+    public Company() {
 
     }
 
-    public CompanyDto(CompanyDto other) {
+    public Company(Company other) {
         this.id = other.id;
         this.registrationNumber = other.registrationNumber;
         this.name = other.name;
@@ -45,10 +45,10 @@ public class CompanyDto {
     public void setAddress(String address) {
         this.address = address;
     }
-    public List<EmployeeDto> getEmployees() {
+    public List<Employee> getEmployees() {
         return employees;
     }
-    public void setEmployees(List<EmployeeDto> employees) {
+    public void setEmployees(List<Employee> employees) {
         this.employees = employees;
     }
 }

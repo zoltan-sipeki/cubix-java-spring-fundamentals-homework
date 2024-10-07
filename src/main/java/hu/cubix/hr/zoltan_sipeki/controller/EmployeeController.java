@@ -1,4 +1,4 @@
-package hu.cubix.hr.zoltan_sipeki.controllers;
+package hu.cubix.hr.zoltan_sipeki.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
