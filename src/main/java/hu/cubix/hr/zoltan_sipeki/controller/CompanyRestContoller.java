@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import hu.cubix.hr.zoltan_sipeki.dto.CompanyDto;
 import hu.cubix.hr.zoltan_sipeki.dto.EmployeeDto;
+import hu.cubix.hr.zoltan_sipeki.exception.CompanyAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.mapper.CompanyMapper;
@@ -50,38 +51,39 @@ public class CompanyRestContoller {
 
     @GetMapping("/{id}")
     public CompanyDto getCompanyById(@PathVariable long id, @RequestParam Optional<Boolean> full) {
-        var company = companyService.getCompanyById(id);
-        if (company == null) {
+        try {
+            var company = companyService.getCompanyById(id);
+            if (full.orElse(false)) {
+                return companyMapper.mapCompanyToDto(company);
+            }
+
+            return companyMapper.mapCompanyToDtoWithoutEmployees(company);
+        } catch (CompanyNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-
-        if (full.orElse(false)) {
-            return companyMapper.mapCompanyToDto(company);
-        }
-
-        return companyMapper.mapCompanyToDtoWithoutEmployees(company);
     }
 
     @PostMapping
     public ResponseEntity<?> createCompany(@RequestBody CompanyDto company) {
-        var c = companyService.createCompany(companyMapper.mapDtoToCompany(company));
-        if (c == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Company with id " + company.getId() + " already exists.");
+        try {
+            var c = companyService.createCompany(companyMapper.mapDtoToCompany(company));
+            return ResponseEntity.created(URI.create("/api/companies/" + company.getId()))
+                    .body(companyMapper.mapCompanyToDto(c));
+        } catch (CompanyAlreadyExistsException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 
-        return ResponseEntity.created(URI.create("/api/companies/" + company.getId())).build();
     }
 
     @PutMapping("/{id}")
     public CompanyDto updateCompany(@PathVariable long id, @RequestBody CompanyDto company) {
-        var c = companyService.updateCompany(companyMapper.mapDtoToCompany(company));
-        if (c == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Company with id" + company.getId() + "does not exist.");
+        try {
+            companyService.updateCompany(companyMapper.mapDtoToCompany(company));
+            return company;
+        } catch (CompanyNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 
-        return company;
     }
 
     @DeleteMapping("/{id}")
@@ -93,23 +95,21 @@ public class CompanyRestContoller {
     public ResponseEntity<?> addEmployeeToCompany(@PathVariable long companyId, @RequestBody EmployeeDto employee) {
         try {
             var company = companyService.addEmployeeToCompany(companyId, employeeMapper.mapDtoToEmployee(employee));
-            return ResponseEntity.created(URI.create("/api/company/" + companyId + "/employees/" + employee.getId())).body(companyMapper.mapCompanyToDto(company));
-        }
-        catch (CompanyNotFoundException | EmployeeAlreadyExistsException e) {
+            return ResponseEntity.created(URI.create("/api/company/" + companyId + "/employees/" + employee.getId()))
+                    .body(companyMapper.mapCompanyToDto(company));
+        } catch (CompanyNotFoundException | EmployeeAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
     @PutMapping("/{companyId}/employees")
-    public CompanyDto updateEmployeesInCompany(@PathVariable long companyId,
-            @RequestBody List<EmployeeDto> employees) {
-        var company = companyService.updateEmployeesInCompany(companyId, employeeMapper.mapDtoListToEmployeeList(employees));
-        if (company == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Company with id " + companyId + " does not exist.");
+    public CompanyDto updateEmployeesInCompany(@PathVariable long companyId, @RequestBody List<EmployeeDto> employees) {
+        try {
+            var company = companyService.updateEmployeesInCompany(companyId, employeeMapper.mapDtoListToEmployeeList(employees));
+            return companyMapper.mapCompanyToDto(company);
+        } catch (CompanyNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-
-        return companyMapper.mapCompanyToDto(company);
     }
 
     @DeleteMapping("/{companyId}/employees/{employeeId}")
@@ -117,8 +117,7 @@ public class CompanyRestContoller {
         try {
             var company = companyService.deleteEmployeeFromCompany(companyId, employeeId);
             return companyMapper.mapCompanyToDto(company);
-        }
-        catch (CompanyNotFoundException e) {
+        } catch (CompanyNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }

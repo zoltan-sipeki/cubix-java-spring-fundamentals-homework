@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import hu.cubix.hr.zoltan_sipeki.exception.CompanyAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.model.Company;
@@ -20,34 +21,35 @@ public class CompanyService {
         return new ArrayList<>(companies.values());
     }
 
-    public Company getCompanyById(long id) {
-        return companies.get(id);
-    }
-
-    public Company createCompany(Company company) {
-        if (companies.containsKey(company.getId())) {
-            return null;
-        }
-
-        companies.put(company.getId(), company);
-        return company;
-    }
-
-    public Company updateCompany(Company company) {
-        if (!companies.containsKey(company.getId())) {
-            return null;
-        }
-
-        companies.put(company.getId(), company);
-        return company;
-    }
-
-    public Company updateEmployeesInCompany(long companyId, List<Employee> employees) {
-        var company = getCompanyById(companyId);
+    public Company getCompanyById(long id) throws CompanyNotFoundException {
+        var company = companies.get(id);
         if (company == null) {
-            return null;
+            throw new CompanyNotFoundException(id);
         }
 
+        return company;
+    }
+
+    public Company createCompany(Company company) throws CompanyAlreadyExistsException {
+        if (companies.containsKey(company.getId())) {
+            throw new CompanyAlreadyExistsException(company.getId());
+        }
+
+        companies.put(company.getId(), company);
+        return company;
+    }
+
+    public Company updateCompany(Company company) throws CompanyNotFoundException {
+        if (!companies.containsKey(company.getId())) {
+            throw new CompanyNotFoundException(company.getId());
+        }
+
+        companies.put(company.getId(), company);
+        return company;
+    }
+
+    public Company updateEmployeesInCompany(long companyId, List<Employee> employees) throws CompanyNotFoundException {
+        var company = getCompanyById(companyId);
         company.setEmployees(employees);
         return company;
     }
