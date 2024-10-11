@@ -5,14 +5,28 @@ import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
+@Entity
 public class Employee {
+	@Id
+	@GeneratedValue
 	private long id;
+
 	private String job;
+	
 	private String name;
+	
 	private int salary;
 
 	@DateTimeFormat(iso = ISO.DATE_TIME)
 	private LocalDateTime firstDay;
+
+	@ManyToOne
+	private Company company;
 	
 	public Employee() {
 	}

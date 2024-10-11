@@ -10,7 +10,15 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
- 
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/hr"
+    username: "hradmin"
+    password: "hradmin"
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: "update"
+
 salary:
   defaultPercent: 5
   smart:

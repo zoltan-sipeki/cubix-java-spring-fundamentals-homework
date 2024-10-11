@@ -1,6 +1,7 @@
 package hu.cubix.hr.zoltan_sipeki.controller;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import hu.cubix.hr.zoltan_sipeki.dto.EmployeeDto;
+import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
+import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.mapper.EmployeeMapper;
 import hu.cubix.hr.zoltan_sipeki.service.AbstractEmployeeService;
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/api/employees")
@@ -38,44 +40,66 @@ public class EmployeeRestController {
         return mapper.mapEmployeeListToDtoList(employeeService.getAllEmployees());
     }
 
+    @GetMapping(params = "minSalary")
+    public List<EmployeeDto> getEmployeesByMinSalary(@RequestParam int minSalary) {
+        return mapper.mapEmployeeListToDtoList(employeeService.getEmployeesByMinSalary(minSalary));
+    }
+    
+    @GetMapping(params = "job")
+    public List<EmployeeDto> getEmployeesByJob(@RequestParam String job) {
+        var employees = employeeService.getEmployeesByJob(job);
+        return mapper.mapEmployeeListToDtoList(employees);
+    }
+
+    @GetMapping(params = "nameStartsWith")
+    public List<EmployeeDto> getEmployeesByNameStartingWithIgnoreCase(@RequestParam String nameStartsWith) {
+        var employees = employeeService.getEmployeesByNameStartingWithIgnoreCase(nameStartsWith);
+        return mapper.mapEmployeeListToDtoList(employees);
+    }
+
+    @GetMapping(params = {"startDate", "endDate"})
+    public List<EmployeeDto> getEmployeesByFirstDayBetween(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
+        var employees = employeeService.getEmployeesByFirstDayBetween(startDate, endDate);
+        return mapper.mapEmployeeListToDtoList(employees);
+    }
+
     @GetMapping("/{id}")
     public EmployeeDto getEmployeeById(@PathVariable long id) {
-        var employee = employeeService.getEmployeeById(id);
-        if (employee == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND); 
-        }
-        
-        return mapper.mapEmployeeToDto(employee);
-    }
+        try {
+            var employee = employeeService.getEmployeeById(id);
+            return mapper.mapEmployeeToDto(employee);
 
-    @GetMapping(params = "min-salary")
-    public List<EmployeeDto> getEmployeesByMinSalary(@RequestParam("min-salary") int salary) {
-        return mapper.mapEmployeeListToDtoList(employeeService.getEmployeesByMinSalary(salary));
-    }
-    
+        } catch (EmployeeNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }    
+
     @PostMapping
     public ResponseEntity<?> createEmployee(@RequestBody @Valid EmployeeDto employee) {
-        var e = employeeService.createEmployee(mapper.mapDtoToEmployee(employee));
-        if (e == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee with id " + employee.getId() + " already exists.");
+        try {
+            var e = employeeService.createEmployee(mapper.mapDtoToEmployee(employee));
+            return ResponseEntity.created(URI.create("/api/employees/" + employee.getId())).body(mapper.mapEmployeeToDto(e));
         }
-        
-        return ResponseEntity.created(URI.create("/api/employees/" + employee.getId())).build();
+        catch (EmployeeAlreadyExistsException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
-    
+
     @PutMapping("/{id}")
     public EmployeeDto updateEmployee(@PathVariable long id, @RequestBody @Valid EmployeeDto employee) {
-        var e = employeeService.updateEmployee(mapper.mapDtoToEmployee(employee));
-        if (e == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee with id " + employee.getId() + " already exists.");
-        }        
-
-        return employee;            
+        try {
+            employee.setId(id);
+            employeeService.updateEmployee(mapper.mapDtoToEmployee(employee));
+            return employee;
+        }
+        catch(EmployeeNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public void deleteEmployee(@PathVariable long id) {
         employeeService.deleteEmployeeById(id);
     }
-    
+
 }

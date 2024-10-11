@@ -1,55 +1,70 @@
 package hu.cubix.hr.zoltan_sipeki.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
+import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.model.Employee;
+import hu.cubix.hr.zoltan_sipeki.repository.EmployeeRepository;
 
 @Service
 public abstract class AbstractEmployeeService implements EmployeeService {
-    private Map<Long, Employee> employees = new HashMap<>();
+    
+    @Autowired
+    private EmployeeRepository repo;
 
     public List<Employee> getAllEmployees() {
-        return new ArrayList<>(employees.values());
+        return repo.findAll();
     }
 
-    public Employee getEmployeeById(long id) {
-        return employees.get(id);
+    public Employee getEmployeeById(long id) throws EmployeeNotFoundException {
+        var employee = repo.findById(id);
+        if (!employee.isPresent()) {
+            throw new EmployeeNotFoundException(id);
+        }
+
+        return employee.get();
     }
 
     public List<Employee> getEmployeesByMinSalary(int minSalary) {
-        List<Employee> list = new ArrayList<>();
-        for (var employee : employees.values()) {
-            if (employee.getSalary() > minSalary) {
-                list.add(employee);
-            }
-        }
-        return list;
+        return repo.findEmployeesByMinSalary(minSalary);
     }
 
-    public Employee createEmployee(Employee employee) {
-        if (employees.containsKey(employee.getId())) {
-            return null;
-        }
+    public List<Employee> getEmployeesByJob(String job) {
+        return repo.findEmployeesByJob(job);
+    }
 
-        employees.put(employee.getId(), employee);
+    public List<Employee> getEmployeesByNameStartingWithIgnoreCase(String namePrefix) {
+        return repo.findEmployeesByNameStartingWithIgnoreCase(namePrefix);
+    }
+
+    public List<Employee> getEmployeesByFirstDayBetween(LocalDateTime start, LocalDateTime end) {
+        return repo.findEmployeesByFirstDayBetween(start, end);
+    }
+
+    public Employee createEmployee(Employee employee) throws EmployeeAlreadyExistsException {
+        if (repo.existsById(employee.getId())) {
+            throw new EmployeeAlreadyExistsException(employee.getId());
+        }
+        
+        repo.save(employee);
         return employee;
     }
 
-    public Employee updateEmployee(Employee employee) {
-        if (!employees.containsKey(employee.getId())) {
-            return null;
+    public Employee updateEmployee(Employee employee) throws EmployeeNotFoundException {
+        if (!repo.existsById(employee.getId())) {
+            throw new EmployeeNotFoundException(employee.getId());
         }
 
-        employees.put(employee.getId(), employee);
+        repo.save(employee);
         return employee;
     }
 
     public void deleteEmployeeById(long id) {
-        employees.remove(id);
+        repo.deleteById(id);
     }
 }
