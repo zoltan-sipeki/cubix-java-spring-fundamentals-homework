@@ -31,7 +31,6 @@ public class CompanyService {
         return company.get();
     }
 
-    @Transactional
     public Company createCompany(Company company) throws CompanyAlreadyExistsException {
         if (repo.existsById(company.getId())) {
             throw new CompanyAlreadyExistsException(company.getId());
@@ -41,7 +40,6 @@ public class CompanyService {
         return company;
     }
 
-    @Transactional
     public Company updateCompany(Company company) throws CompanyNotFoundException {
         if (!repo.existsById(company.getId())) {
             throw new CompanyNotFoundException(company.getId());
@@ -51,7 +49,6 @@ public class CompanyService {
         return company;
     }
 
-    @Transactional
     public Company updateEmployeesInCompany(long companyId, List<Employee> employees) throws CompanyNotFoundException {
         var company = getCompanyById(companyId);
         company.setEmployees(employees);
@@ -59,7 +56,6 @@ public class CompanyService {
         return company;
     }
 
-    @Transactional
     public Company addEmployeeToCompany(long companyId, Employee employee) throws CompanyNotFoundException, EmployeeAlreadyExistsException {
         var company = getCompanyById(companyId);
         var employees = company.getEmployees();
@@ -72,7 +68,6 @@ public class CompanyService {
         return company;
     }
 
-    @Transactional
     public Company deleteEmployeeFromCompany(long companyId, long employeeId) throws CompanyNotFoundException {
         var company = getCompanyById(companyId);
         var employees = company.getEmployees();
@@ -81,7 +76,6 @@ public class CompanyService {
         return company;
     }
 
-    @Transactional
     public void deleteCompany(long id) {
         repo.deleteById(id);
     }
