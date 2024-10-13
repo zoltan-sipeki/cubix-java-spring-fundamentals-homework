@@ -21,8 +21,7 @@ public class Company {
     
     String address;
     
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "company_id")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "company")
     List<Employee> employees;
 
     public Company() {
