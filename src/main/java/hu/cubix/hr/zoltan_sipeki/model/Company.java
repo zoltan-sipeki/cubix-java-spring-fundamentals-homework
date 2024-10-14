@@ -20,7 +20,7 @@ public class Company {
     
     String address;
     
-    @OneToMany(mappedBy = "company", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "company", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     List<Employee> employees;
 
     public Company() {
