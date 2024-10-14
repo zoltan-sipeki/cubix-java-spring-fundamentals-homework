@@ -12,15 +12,11 @@ import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.model.Company;
 import hu.cubix.hr.zoltan_sipeki.model.Employee;
 import hu.cubix.hr.zoltan_sipeki.repository.CompanyRepository;
-import hu.cubix.hr.zoltan_sipeki.repository.EmployeeRepository;
 
 @Service
 public class CompanyService {
     @Autowired
     private CompanyRepository companyRepo;
-
-    @Autowired
-    private EmployeeRepository employeeRepo;
 
     public List<Company> getAllCompanies() {
         return companyRepo.findAll();
@@ -43,7 +39,7 @@ public class CompanyService {
         var employees = company.getEmployees();
         employees.forEach(employee -> employee.setCompany(company));
         companyRepo.save(company);
-        employeeRepo.saveAll(employees);
+        
         return company;
     }
 
@@ -58,7 +54,7 @@ public class CompanyService {
         employees.forEach(employee -> employee.setCompany(company));
 
         companyRepo.save(company);
-        employeeRepo.saveAll(employees);
+        
         return company;
     }
 
@@ -67,8 +63,7 @@ public class CompanyService {
         company.getEmployees().forEach(employee -> employee.setCompany(null));
         employees.forEach(employee -> employee.setCompany(company));
         company.setEmployees(employees);
-
-        employeeRepo.saveAll(employees);
+        
         companyRepo.save(company);
         return company;
     }
@@ -83,28 +78,35 @@ public class CompanyService {
         employees.add(employee);
         employee.setCompany(company);
 
-        employeeRepo.save(employee);
         companyRepo.save(company);
         return company;
     }
 
     public Company deleteEmployeeFromCompany(long companyId, long employeeId) throws CompanyNotFoundException, EmployeeNotFoundException {
         var company = getCompanyById(companyId);
-        var employee = employeeRepo.findById(employeeId).orElse(null);
-        if (employee == null) {
-            throw new EmployeeNotFoundException(employeeId);
-        }
-
+    
         var employees = company.getEmployees();
-        employees.removeIf(e -> e.getId() == employeeId);
-        employee.setCompany(null);
+        for (int i = employees.size() - 1; i >= 0; --i) {
+            var employee = employees.get(i);
+            if (employee.getId() == employeeId) {
+                employee.setCompany(null);
+                employees.remove(i);
+                break;
+            }
+        }
         
         companyRepo.save(company);
-        employeeRepo.save(employee);
+        
         return company;
     }
 
     public void deleteCompany(long id) {
+        var company = companyRepo.findById(id).orElse(null);
+        if (company == null) {
+            return;
+        }
+
+        company.getEmployees().forEach(employee -> employee.setCompany(null));
         companyRepo.deleteById(id);
     }
 }
