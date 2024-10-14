@@ -8,21 +8,26 @@ import org.springframework.stereotype.Service;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
+import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.model.Company;
 import hu.cubix.hr.zoltan_sipeki.model.Employee;
 import hu.cubix.hr.zoltan_sipeki.repository.CompanyRepository;
+import hu.cubix.hr.zoltan_sipeki.repository.EmployeeRepository;
 
 @Service
 public class CompanyService {
     @Autowired
-    private CompanyRepository repo;
+    private CompanyRepository companyRepo;
+
+    @Autowired
+    private EmployeeRepository employeeRepo;
 
     public List<Company> getAllCompanies() {
-        return repo.findAll();
+        return companyRepo.findAll();
     }
 
     public Company getCompanyById(long id) throws CompanyNotFoundException {
-        var company = repo.findById(id);
+        var company = companyRepo.findById(id);
         if (!company.isPresent()) {
             throw new CompanyNotFoundException(id);
         }
@@ -31,27 +36,40 @@ public class CompanyService {
     }
 
     public Company createCompany(Company company) throws CompanyAlreadyExistsException {
-        if (repo.existsById(company.getId())) {
+        if (companyRepo.existsById(company.getId())) {
             throw new CompanyAlreadyExistsException(company.getId());
         }
 
-        repo.save(company);
+        var employees = company.getEmployees();
+        employees.forEach(employee -> employee.setCompany(company));
+        companyRepo.save(company);
+        employeeRepo.saveAll(employees);
         return company;
     }
 
     public Company updateCompany(Company company) throws CompanyNotFoundException {
-        if (!repo.existsById(company.getId())) {
+        var c = companyRepo.findById(company.getId()).orElse(null);
+        if (c == null) {
             throw new CompanyNotFoundException(company.getId());
         }
 
-        repo.save(company);
+        c.getEmployees().forEach(employee -> employee.setCompany(null));
+        var employees = company.getEmployees();
+        employees.forEach(employee -> employee.setCompany(company));
+
+        companyRepo.save(company);
+        employeeRepo.saveAll(employees);
         return company;
     }
 
     public Company updateEmployeesInCompany(long companyId, List<Employee> employees) throws CompanyNotFoundException {
         var company = getCompanyById(companyId);
+        company.getEmployees().forEach(employee -> employee.setCompany(null));
+        employees.forEach(employee -> employee.setCompany(company));
         company.setEmployees(employees);
-        repo.save(company);
+
+        employeeRepo.saveAll(employees);
+        companyRepo.save(company);
         return company;
     }
 
@@ -63,19 +81,30 @@ public class CompanyService {
         }
 
         employees.add(employee);
-        repo.save(company);
+        employee.setCompany(company);
+
+        employeeRepo.save(employee);
+        companyRepo.save(company);
         return company;
     }
 
-    public Company deleteEmployeeFromCompany(long companyId, long employeeId) throws CompanyNotFoundException {
+    public Company deleteEmployeeFromCompany(long companyId, long employeeId) throws CompanyNotFoundException, EmployeeNotFoundException {
         var company = getCompanyById(companyId);
+        var employee = employeeRepo.findById(employeeId).orElse(null);
+        if (employee == null) {
+            throw new EmployeeNotFoundException(employeeId);
+        }
+
         var employees = company.getEmployees();
         employees.removeIf(e -> e.getId() == employeeId);
-        repo.save(company);
+        employee.setCompany(null);
+        
+        companyRepo.save(company);
+        employeeRepo.save(employee);
         return company;
     }
 
     public void deleteCompany(long id) {
-        repo.deleteById(id);
+        companyRepo.deleteById(id);
     }
 }

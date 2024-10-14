@@ -2,11 +2,9 @@ package hu.cubix.hr.zoltan_sipeki.model;
 
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -21,7 +19,7 @@ public class Company {
     
     String address;
     
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "company")
+    @OneToMany(mappedBy = "company")
     List<Employee> employees;
 
     public Company() {

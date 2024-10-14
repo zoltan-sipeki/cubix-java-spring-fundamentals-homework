@@ -23,6 +23,7 @@ import hu.cubix.hr.zoltan_sipeki.dto.EmployeeDto;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
+import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.mapper.CompanyMapper;
 import hu.cubix.hr.zoltan_sipeki.mapper.EmployeeMapper;
 import hu.cubix.hr.zoltan_sipeki.service.CompanyService;
@@ -117,7 +118,7 @@ public class CompanyRestContoller {
         try {
             var company = companyService.deleteEmployeeFromCompany(companyId, employeeId);
             return companyMapper.mapCompanyToDto(company);
-        } catch (CompanyNotFoundException e) {
+        } catch (CompanyNotFoundException | EmployeeNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }

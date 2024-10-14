@@ -24,7 +24,7 @@ public class Employee {
 
 	@DateTimeFormat(iso = ISO.DATE_TIME)
 	private LocalDateTime firstDay;
-
+	
 	@ManyToOne
 	private Company company;
 	
@@ -38,6 +38,10 @@ public class Employee {
 		this.job = job;
 		this.salary = salary;
 		this.firstDay = firstDay;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
 	}
 
 	public void setName(String name) {
