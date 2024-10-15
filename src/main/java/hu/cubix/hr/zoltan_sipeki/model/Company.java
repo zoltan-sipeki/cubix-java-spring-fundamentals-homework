@@ -1,5 +1,6 @@
 package hu.cubix.hr.zoltan_sipeki.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -66,7 +67,7 @@ public class Company {
             employee.setCompany(null);
         }
 
-        this.employees = null;
+        this.employees = new ArrayList<>();
     }
 
     public void remove(Predicate<Employee> callback) {
