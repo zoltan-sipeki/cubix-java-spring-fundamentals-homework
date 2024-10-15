@@ -12,11 +12,16 @@ import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.model.Company;
 import hu.cubix.hr.zoltan_sipeki.model.Employee;
 import hu.cubix.hr.zoltan_sipeki.repository.CompanyRepository;
+import hu.cubix.hr.zoltan_sipeki.repository.EmployeeRepository;
 
 @Service
 public class CompanyService {
+
     @Autowired
     private CompanyRepository companyRepo;
+
+    @Autowired
+    private EmployeeRepository employeeRepo;
 
     public List<Company> getAllCompanies() {
         return companyRepo.findAll();
@@ -60,8 +65,8 @@ public class CompanyService {
 
     public Company updateEmployeesInCompany(long companyId, List<Employee> employees) throws CompanyNotFoundException {
         var company = getCompanyById(companyId);
-        company.replace(employees);
-        companyRepo.save(company);
+        var oldEmployees = company.replace(employees);
+        employeeRepo.saveAll(oldEmployees);
         return company;
     }
 
@@ -72,15 +77,14 @@ public class CompanyService {
         }
 
         company.add(employee);
-        companyRepo.save(company);
+        employeeRepo.save(employee);
         return company;
     }
 
     public Company deleteEmployeeFromCompany(long companyId, long employeeId) throws CompanyNotFoundException, EmployeeNotFoundException {
         var company = getCompanyById(companyId);
-        company.remove(employee -> employee.getId() == employeeId);
-        companyRepo.save(company);
-        
+        var deletedEmployees = company.remove(employee -> employee.getId() == employeeId);
+        employeeRepo.saveAll(deletedEmployees);        
         return company;
     }
 
@@ -89,7 +93,8 @@ public class CompanyService {
         if (company == null) {
             return;
         }
-        company.removeAllEmployess();
+        var oldEmployees = company.removeAllEmployess();
         companyRepo.deleteById(id);
+        employeeRepo.saveAll(oldEmployees);
     }
 }

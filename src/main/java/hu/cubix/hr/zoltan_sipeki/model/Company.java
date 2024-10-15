@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -22,7 +21,7 @@ public class Company {
     
     String address;
     
-    @OneToMany(mappedBy = "company", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "company")
     List<Employee> employees;
 
     public Company() {
@@ -48,36 +47,42 @@ public class Company {
         employee.setCompany(this);
     }
 
-    public void replace(List<Employee> employees) {
-        for (var employee : this.employees) {
+    public List<Employee> replace(List<Employee> employees) {
+        var oldEmployees = this.employees;
+        for (var employee : oldEmployees) {
             employee.setCompany(null);
         }
         for (var employee : employees) {
             employee.setCompany(this);
         }
-        this.employees = employees;
+        return oldEmployees;
     }
 
     public boolean has(Employee employee) {
         return this.employees.contains(employee);
     }
 
-    public void removeAllEmployess() {
-        for (var employee : employees) {
+    public List<Employee> removeAllEmployess() {
+        var oldEmployees = this.employees;
+        for (var employee : oldEmployees) {
             employee.setCompany(null);
         }
 
         this.employees = new ArrayList<>();
+        return oldEmployees;
     }
 
-    public void remove(Predicate<Employee> callback) {
+    public List<Employee> remove(Predicate<Employee> callback) {
+        var res = new ArrayList<Employee>();
         for (int i = employees.size() - 1; i >= 0; --i) {
             var employee = employees.get(i);
             if (callback.test(employee)) {
                 employee.setCompany(null);
                 employees.remove(i);
+                res.add(employee);
             }
         }
+        return res;
     }
 
     public long getId() {
@@ -109,6 +114,28 @@ public class Company {
     }
     public void setEmployees(List<Employee> employees) {
         this.employees = employees;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (id ^ (id >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Company other = (Company) obj;
+        if (id != other.id)
+            return false;
+        return true;
     }
     
 }
