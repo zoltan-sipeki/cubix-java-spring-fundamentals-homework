@@ -1,6 +1,7 @@
 package hu.cubix.hr.zoltan_sipeki.model;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -27,12 +28,55 @@ public class Company {
 
     }
 
+    public Company(String registrationNumber, String name, String address) {
+        this.registrationNumber = registrationNumber;
+        this.name = name;
+        this.address = address;
+    }
+
     public Company(Company other) {
         this.id = other.id;
         this.registrationNumber = other.registrationNumber;
         this.name = other.name;
         this.address = other.address;
         this.employees = other.employees;
+    }
+
+    public void add(Employee employee) {
+        employees.add(employee);
+        employee.setCompany(this);
+    }
+
+    public void replace(List<Employee> employees) {
+        for (var employee : this.employees) {
+            employee.setCompany(null);
+        }
+        for (var employee : employees) {
+            employee.setCompany(this);
+        }
+        this.employees = employees;
+    }
+
+    public boolean has(Employee employee) {
+        return this.employees.contains(employee);
+    }
+
+    public void removeAllEmployess() {
+        for (var employee : employees) {
+            employee.setCompany(null);
+        }
+
+        this.employees = null;
+    }
+
+    public void remove(Predicate<Employee> callback) {
+        for (int i = employees.size() - 1; i >= 0; --i) {
+            var employee = employees.get(i);
+            if (callback.test(employee)) {
+                employee.setCompany(null);
+                employees.remove(i);
+            }
+        }
     }
 
     public long getId() {
@@ -65,4 +109,5 @@ public class Company {
     public void setEmployees(List<Employee> employees) {
         this.employees = employees;
     }
+    
 }

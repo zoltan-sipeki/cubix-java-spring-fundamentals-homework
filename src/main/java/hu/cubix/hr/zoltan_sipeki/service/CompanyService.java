@@ -60,41 +60,25 @@ public class CompanyService {
 
     public Company updateEmployeesInCompany(long companyId, List<Employee> employees) throws CompanyNotFoundException {
         var company = getCompanyById(companyId);
-        company.getEmployees().forEach(employee -> employee.setCompany(null));
-        employees.forEach(employee -> employee.setCompany(company));
-        company.setEmployees(employees);
-        
+        company.replace(employees);
         companyRepo.save(company);
         return company;
     }
 
     public Company addEmployeeToCompany(long companyId, Employee employee) throws CompanyNotFoundException, EmployeeAlreadyExistsException {
         var company = getCompanyById(companyId);
-        var employees = company.getEmployees();
-        if (employees.contains(employee)) {
+        if (company.has(employee)) {
             throw new EmployeeAlreadyExistsException(employee.getId(), companyId);
         }
 
-        employees.add(employee);
-        employee.setCompany(company);
-
+        company.add(employee);
         companyRepo.save(company);
         return company;
     }
 
     public Company deleteEmployeeFromCompany(long companyId, long employeeId) throws CompanyNotFoundException, EmployeeNotFoundException {
         var company = getCompanyById(companyId);
-    
-        var employees = company.getEmployees();
-        for (int i = employees.size() - 1; i >= 0; --i) {
-            var employee = employees.get(i);
-            if (employee.getId() == employeeId) {
-                employee.setCompany(null);
-                employees.remove(i);
-                break;
-            }
-        }
-        
+        company.remove(employee -> employee.getId() == employeeId);
         companyRepo.save(company);
         
         return company;
@@ -105,8 +89,7 @@ public class CompanyService {
         if (company == null) {
             return;
         }
-
-        company.getEmployees().forEach(employee -> employee.setCompany(null));
+        company.removeAllEmployess();
         companyRepo.deleteById(id);
     }
 }
