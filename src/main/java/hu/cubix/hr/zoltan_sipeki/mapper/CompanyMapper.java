@@ -10,8 +10,9 @@ import org.mapstruct.Named;
 import hu.cubix.hr.zoltan_sipeki.dto.CompanyDto;
 import hu.cubix.hr.zoltan_sipeki.model.Company;
 
-@Mapper(componentModel = "spring", uses = EmployeeMapper.class)
+@Mapper(componentModel = "spring", uses = {EmployeeMapper.class})
 public interface CompanyMapper {
+
     public Company mapDtoToCompany(CompanyDto dto);
     
     @Named("WithEmployees")

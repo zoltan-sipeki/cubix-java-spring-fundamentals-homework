@@ -2,9 +2,6 @@ package hu.cubix.hr.zoltan_sipeki.model;
 
 import java.time.LocalDateTime;
 
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -16,29 +13,17 @@ public class Employee {
 	@GeneratedValue
 	private long id;
 
-	private String job;
+	@ManyToOne
+	private Position job;
 	
 	private String name;
 	
 	private int salary;
-
-	@DateTimeFormat(iso = ISO.DATE_TIME)
+	
 	private LocalDateTime firstDay;
 	
 	@ManyToOne
 	private Company company;
-	
-	public Employee() {
-	}
-
-	public Employee(long id, String name, String job, int salary, LocalDateTime firstDay) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.job = job;
-		this.salary = salary;
-		this.firstDay = firstDay;
-	}
 
 	public void setCompany(Company company) {
 		this.company = company;
@@ -60,11 +45,11 @@ public class Employee {
 		this.id = id;
 	}
 
-	public String getJob() {
+	public Position getJob() {
 		return job;
 	}
 
-	public void setJob(String job) {
+	public void setJob(Position job) {
 		this.job = job;
 	}
 
@@ -105,5 +90,4 @@ public class Employee {
 			return false;
 		return true;
 	}
-
 }

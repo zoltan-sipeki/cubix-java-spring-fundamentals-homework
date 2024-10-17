@@ -2,14 +2,12 @@ package hu.cubix.hr.zoltan_sipeki.dto;
 
 import java.time.LocalDateTime;
 
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Positive;
 
 public class EmployeeDto {
+    
     private long id;
     
     @NotEmpty
@@ -21,7 +19,6 @@ public class EmployeeDto {
     @Positive
     private int salary;
 
-    @DateTimeFormat(iso = ISO.DATE_TIME)
     @Past
     private LocalDateTime firstDay;
 

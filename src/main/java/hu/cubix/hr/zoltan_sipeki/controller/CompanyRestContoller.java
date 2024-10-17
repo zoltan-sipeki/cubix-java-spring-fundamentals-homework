@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import hu.cubix.hr.zoltan_sipeki.dto.AvgSalaryByPositionDto;
 import hu.cubix.hr.zoltan_sipeki.dto.CompanyDto;
 import hu.cubix.hr.zoltan_sipeki.dto.EmployeeDto;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyAlreadyExistsException;
@@ -26,6 +27,7 @@ import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.mapper.CompanyMapper;
 import hu.cubix.hr.zoltan_sipeki.mapper.EmployeeMapper;
+import hu.cubix.hr.zoltan_sipeki.model.Company;
 import hu.cubix.hr.zoltan_sipeki.service.CompanyService;
 
 @RestController
@@ -41,8 +43,19 @@ public class CompanyRestContoller {
     private CompanyService companyService;
 
     @GetMapping
-    public List<CompanyDto> getAllCompanies(@RequestParam Optional<Boolean> full) {
-        var companies = companyService.getAllCompanies();
+    public List<CompanyDto> getCompanies(@RequestParam Optional<Boolean> full, @RequestParam Optional<Integer> minSalary, @RequestParam Optional<Integer> minHeadCount) {
+        List<Company> companies = null;
+
+        if (minSalary.isPresent()) {
+            companies = companyService.getCompaniesBySalaryGreaterThan(minSalary.get());
+        }
+        else if (minHeadCount.isPresent()) {
+            companies = companyService.getCompaniesByHeadCountGreaterThan(minHeadCount.get());
+        }
+        else {
+            companies = companyService.getAllCompanies();
+        }
+        
         if (full.orElse(false)) {
             return companyMapper.mapCompanyListToDtoList(companies);
         }
@@ -64,6 +77,12 @@ public class CompanyRestContoller {
         }
     }
 
+    @GetMapping("/{id}/average-salaries")
+    public List<AvgSalaryByPositionDto> getAvgSalariesGroupedByJobOrderedBySalaryDesc(@PathVariable long id) {
+        var salaries = companyService.getAvgSalariesGroupedByJobOrderedBySalaryDesc(id);
+        return salaries;
+    }
+    
     @PostMapping
     public ResponseEntity<?> createCompany(@RequestBody CompanyDto company) {
         try {

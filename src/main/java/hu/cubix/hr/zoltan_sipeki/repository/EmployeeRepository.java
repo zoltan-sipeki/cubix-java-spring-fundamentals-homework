@@ -11,16 +11,20 @@ import hu.cubix.hr.zoltan_sipeki.model.Employee;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-
+    
     @Query("select e from Employee e where e.job = :job")
-    List<Employee> findEmployeesByJob(String job);
+    public List<Employee> findEmployeesByJob(String job);
 
     @Query("select e from Employee e where lower(e.name) like lower(:namePrefix) || '%'")
-    List<Employee> findEmployeesByNameStartingWithIgnoreCase(String namePrefix);
+    public List<Employee> findEmployeesByNameStartingWithIgnoreCase(String namePrefix);
 
-    @Query("select e from Employee e where e.firstDay between :start and :end") 
-    List<Employee> findEmployeesByFirstDayBetween(LocalDateTime start, LocalDateTime end);
+    @Query("select e from Employee e where e.firstDay between :start and :end")
+    public List<Employee> findEmployeesByFirstDayBetween(LocalDateTime start, LocalDateTime end);
 
     @Query("select e from Employee e where e.salary > :minSalary")
-    List<Employee> findEmployeesByMinSalary(int minSalary);
+    public List<Employee> findEmployeesByMinSalary(int minSalary);
+
+    @Query("update Employee e set e.salary = :salary where e.company.id = :companyId and e.job.name = :positionName and e.salary < salary")
+    public void updateSalariesOfEmployeesByPositionAndCompanyAndSalaryLessThan(long companyId, String positionName, int salary);
+
 }

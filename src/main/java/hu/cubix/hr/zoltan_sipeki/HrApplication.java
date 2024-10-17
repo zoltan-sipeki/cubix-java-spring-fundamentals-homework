@@ -1,14 +1,18 @@
 package hu.cubix.hr.zoltan_sipeki;
 
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import hu.cubix.hr.zoltan_sipeki.model.Company;
+import hu.cubix.hr.zoltan_sipeki.model.CompanyForm;
 import hu.cubix.hr.zoltan_sipeki.model.Employee;
+import hu.cubix.hr.zoltan_sipeki.model.MinSalary;
+import hu.cubix.hr.zoltan_sipeki.model.Position;
+import hu.cubix.hr.zoltan_sipeki.service.InitDbService;
 import hu.cubix.hr.zoltan_sipeki.service.SalaryService;
+import hu.cubix.hr.zoltan_sipeki.util.TestDataGenerator;
 
 @SpringBootApplication
 public class HrApplication implements CommandLineRunner {
@@ -16,26 +20,33 @@ public class HrApplication implements CommandLineRunner {
 	@Autowired
 	private SalaryService salaryService;
 
+	@Autowired
+	private InitDbService initDbService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(HrApplication.class, args);
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
-		var employees = new Employee[] { 
-				new Employee(1L, "name1","job1", 10000, LocalDateTime.of(2010, 10, 11, 0, 0)),
-				new Employee(2L, "name2","job2", 20000, LocalDateTime.of(2020, 5, 3, 0, 0)),
-				new Employee(3L, "name3","job3", 30000, LocalDateTime.of(2013, 2, 21, 0, 0)),
-				new Employee(4L, "name4","job4", 40000, LocalDateTime.of(2000, 9, 15, 0, 0)),
-				new Employee(5L, "name5","job4", 40000, LocalDateTime.of(2017, 6, 7, 0, 0)), 
-				new Employee(5L, "name6","job4", 40000, LocalDateTime.of(2024, 6, 7, 0, 0)) 
-		};
+		initDbService.clearDB();
+
+		var gen = new TestDataGenerator();
 		
-		for (var employee : employees) {
-			salaryService.setNewSalary(employee);		
-			System.out.println("New salary for Employee " + employee.getId() + " (first day: " + employee.getFirstDay() + ") is " + employee.getSalary());
-	
-		}
+		var positions = gen.generatePositions();
+		initDbService.insertTestData(Position.class, positions);
+		
+		var companyForms = gen.generateCompanyForms();
+		initDbService.insertTestData(CompanyForm.class, companyForms);
+		
+		var companies = gen.generateCompanies(companyForms);
+		initDbService.insertTestData(Company.class, companies);
+		
+		var employees = gen.generateEmployees(positions, companies);
+		initDbService.insertTestData(Employee.class, employees);
+		
+		var minSalaries = gen.generateMinSalaries(positions, companies);
+		initDbService.insertTestData(MinSalary.class, minSalaries);
 	}
 
 }

@@ -3,8 +3,11 @@ package hu.cubix.hr.zoltan_sipeki.controller;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +25,7 @@ import hu.cubix.hr.zoltan_sipeki.dto.EmployeeDto;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.mapper.EmployeeMapper;
-import hu.cubix.hr.zoltan_sipeki.service.AbstractEmployeeService;
+import hu.cubix.hr.zoltan_sipeki.service.EmployeeService;
 import jakarta.validation.Valid;
 
 @RestController
@@ -33,11 +36,27 @@ public class EmployeeRestController {
     private EmployeeMapper mapper;
 
     @Autowired
-    private AbstractEmployeeService employeeService;
+    private EmployeeService employeeService;
 
     @GetMapping
-    public List<EmployeeDto> getAllEmployees() {
-        return mapper.mapEmployeeListToDtoList(employeeService.getAllEmployees());
+    public List<EmployeeDto> getAllEmployees(@RequestParam Optional<String> sortBy, @RequestParam Optional<Direction> sortOrder) {
+        try {
+            var employees = employeeService.getAllEmployees(sortBy.orElse(""), sortOrder.orElse(Direction.ASC));
+            return mapper.mapEmployeeListToDtoList(employees);
+        }
+        catch (InvalidDataAccessApiUsageException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sortBy parameter \"" + sortBy + "\".");
+        }
+    }
+    @GetMapping(params = {"page", "size"})
+    public List<EmployeeDto> getEmployeesPaginated(@RequestParam int page, @RequestParam int size, @RequestParam Optional<String> sortBy, @RequestParam Optional<Direction> sortOrder) {
+        try {
+            var employees = employeeService.getAllEmployees(page, size, sortBy.orElse(""), sortOrder.orElse(Direction.ASC));
+            return mapper.mapEmployeeListToDtoList(employees);
+        }
+        catch (InvalidDataAccessApiUsageException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sortBy parameter \"" + sortBy + "\".");
+        }
     }
 
     @GetMapping(params = "minSalary")

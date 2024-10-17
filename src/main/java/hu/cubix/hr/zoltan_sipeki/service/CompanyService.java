@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import hu.cubix.hr.zoltan_sipeki.dto.AvgSalaryByPositionDto;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.CompanyNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
@@ -34,6 +35,18 @@ public class CompanyService {
         }
         
         return company.get();
+    }
+
+    public List<Company> getCompaniesBySalaryGreaterThan(int salary) {
+        return companyRepo.findCompaniesBySalaryGreaterThan(salary);
+    }
+
+    public List<Company> getCompaniesByHeadCountGreaterThan(int headCount) {
+        return companyRepo.findCompaniesByHeadcountGreaterThan(headCount);
+    }
+
+    public List<AvgSalaryByPositionDto> getAvgSalariesGroupedByJobOrderedBySalaryDesc(long companyId) {
+        return companyRepo.findAvgSalariesGroupedByJobOrderedBySalaryDesc(companyId);
     }
 
     public Company createCompany(Company company) throws CompanyAlreadyExistsException {

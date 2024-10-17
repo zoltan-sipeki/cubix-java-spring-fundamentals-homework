@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.hibernate.annotations.NaturalId;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -15,23 +18,21 @@ public class Company {
     @GeneratedValue
     private long id;
 
-    String registrationNumber;
+    @NaturalId
+    private String registrationNumber;
     
-    String name;
+    private String name;
     
-    String address;
+    private String address;
     
     @OneToMany(mappedBy = "company")
-    List<Employee> employees;
+    private List<Employee> employees;
+
+    @ManyToOne
+    private CompanyForm form;
 
     public Company() {
 
-    }
-
-    public Company(String registrationNumber, String name, String address) {
-        this.registrationNumber = registrationNumber;
-        this.name = name;
-        this.address = address;
     }
 
     public Company(Company other) {
@@ -40,6 +41,14 @@ public class Company {
         this.name = other.name;
         this.address = other.address;
         this.employees = other.employees;
+    }
+
+    public CompanyForm getForm() {
+        return form;
+    }
+
+    public void setForm(CompanyForm form) {
+        this.form = form;
     }
 
     public void add(Employee employee) {
@@ -137,5 +146,4 @@ public class Company {
             return false;
         return true;
     }
-    
 }
