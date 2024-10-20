@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hu.cubix.hr.zoltan_sipeki.model.Company;
 import hu.cubix.hr.zoltan_sipeki.model.CompanyForm;
@@ -18,6 +19,7 @@ import hu.cubix.hr.zoltan_sipeki.repository.CompanyRepository;
 import hu.cubix.hr.zoltan_sipeki.repository.EmployeeRepository;
 import hu.cubix.hr.zoltan_sipeki.repository.MinSalaryRepository;
 import hu.cubix.hr.zoltan_sipeki.repository.PositionRepository;
+import hu.cubix.hr.zoltan_sipeki.util.TestDataGenerator;
 
 @SuppressWarnings("unchecked")
 @Service
@@ -57,9 +59,28 @@ public class InitDbService {
         positionRepo.deleteAll();
     }
 
+    @Transactional
+    public void initAll() {
+		var gen = new TestDataGenerator();
+		
+		var positions = gen.generatePositions();
+		insertTestData(Position.class, positions);
+		
+		var companyForms = gen.generateCompanyForms();
+		insertTestData(CompanyForm.class, companyForms);
+		
+		var companies = gen.generateCompanies(companyForms);
+		insertTestData(Company.class, companies);
+		
+		var employees = gen.generateEmployees(positions, companies);
+		insertTestData(Employee.class, employees);
+		
+		var minSalaries = gen.generateMinSalaries(positions, companies);
+		insertTestData(MinSalary.class, minSalaries);
+    }
+
     public <T> void insertTestData(Class<T> type, List<T> list) {
         var consumer  = batchInserts.get(type);
-        assert(consumer != null);
         consumer.accept(list);
     }
 

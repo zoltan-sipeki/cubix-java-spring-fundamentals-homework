@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +25,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("select e from Employee e where e.salary > :minSalary")
     public List<Employee> findEmployeesByMinSalary(int minSalary);
 
+    @Modifying
     @Query("update Employee e set e.salary = :salary where e.company.id = :companyId and e.job.name = :positionName and e.salary < salary")
     public void updateSalariesOfEmployeesByPositionAndCompanyAndSalaryLessThan(long companyId, String positionName, int salary);
 

@@ -2,6 +2,7 @@ package hu.cubix.hr.zoltan_sipeki.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hu.cubix.hr.zoltan_sipeki.model.Employee;
 import hu.cubix.hr.zoltan_sipeki.repository.MinSalaryRepository;
@@ -22,6 +23,7 @@ public class SalaryService {
 		employee.setSalary(newSalary);
 	}
 
+	@Transactional
 	public void setMinSalary(String positionName, long companyId, int minSalary) {
 		minSalaryRepo.updateMinSalaryByPositionAndCompany(positionName, companyId, minSalary);
 		employeeService.updateSalariesOfEmployeesByPositionAndCompanyAndSalaryLessThan(positionName, companyId, minSalary);

@@ -3,13 +3,14 @@ package hu.cubix.hr.zoltan_sipeki.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.query.sqm.PathElementException;
+import org.springdoc.core.converters.models.Pageable;
+import org.springdoc.core.converters.models.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
 
+import hu.cubix.hr.zoltan_sipeki.converter.SortConverter;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
 import hu.cubix.hr.zoltan_sipeki.model.Employee;
@@ -21,15 +22,17 @@ public abstract class AbstractEmployeeService implements EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepo;
 
+    @Autowired
+    private SortConverter sortConverter;
+
     @Override
-    public List<Employee> getAllEmployees(String sortBy, Direction sortOrder) throws PathElementException {
-        return employeeRepo.findAll(Sort.by(sortOrder, sortBy));
+    public List<Employee> getAllEmployees(Sort sort) throws PropertyReferenceException {
+        return employeeRepo.findAll(sortConverter.convert(sort.getSort()));
     }
 
     @Override
-    public List<Employee> getAllEmployees(int page, int size, String sortBy, Direction sortOrder) throws PathElementException {
-        var pageable = PageRequest.of(page, size, Sort.by(sortOrder, sortBy));
-        var res = employeeRepo.findAll(pageable);
+    public List<Employee> getAllEmployees(Pageable page) throws PropertyReferenceException {
+        var res = employeeRepo.findAll(PageRequest.of(page.getPage(), page.getSize(), sortConverter.convert(page.getSort())));
         return res.getContent();
     }
 

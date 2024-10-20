@@ -5,9 +5,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springdoc.core.converters.models.Pageable;
+import org.springdoc.core.converters.models.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,24 +39,28 @@ public class EmployeeRestController {
     @Autowired
     private EmployeeService employeeService;
 
+    private String invalidPropertyNameErrorMsg(PropertyReferenceException e) {
+        return e.getMessage().replaceAll(" for type '\\w+'", "");
+    }
+
     @GetMapping
-    public List<EmployeeDto> getAllEmployees(@RequestParam Optional<String> sortBy, @RequestParam Optional<Direction> sortOrder) {
+    public List<EmployeeDto> getAllEmployees(Optional<Sort> sort) {
         try {
-            var employees = employeeService.getAllEmployees(sortBy.orElse(""), sortOrder.orElse(Direction.ASC));
+            var employees = employeeService.getAllEmployees(sort.get());
             return mapper.mapEmployeeListToDtoList(employees);
         }
-        catch (InvalidDataAccessApiUsageException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sortBy parameter \"" + sortBy + "\".");
+        catch (PropertyReferenceException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, invalidPropertyNameErrorMsg(e));
         }
     }
-    @GetMapping(params = {"page", "size"})
-    public List<EmployeeDto> getEmployeesPaginated(@RequestParam int page, @RequestParam int size, @RequestParam Optional<String> sortBy, @RequestParam Optional<Direction> sortOrder) {
+    @GetMapping(params = {"page", "size", "sort"})
+    public List<EmployeeDto> getEmployeesPaginated(Pageable page) {
         try {
-            var employees = employeeService.getAllEmployees(page, size, sortBy.orElse(""), sortOrder.orElse(Direction.ASC));
+            var employees = employeeService.getAllEmployees(page);
             return mapper.mapEmployeeListToDtoList(employees);
         }
-        catch (InvalidDataAccessApiUsageException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sortBy parameter \"" + sortBy + "\".");
+        catch (PropertyReferenceException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, invalidPropertyNameErrorMsg(e));
         }
     }
 

@@ -3,8 +3,9 @@ package hu.cubix.hr.zoltan_sipeki.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.query.sqm.PathElementException;
-import org.springframework.data.domain.Sort.Direction;
+import org.springdoc.core.converters.models.Pageable;
+import org.springdoc.core.converters.models.Sort;
+import org.springframework.data.mapping.PropertyReferenceException;
 
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeAlreadyExistsException;
 import hu.cubix.hr.zoltan_sipeki.exception.EmployeeNotFoundException;
@@ -13,9 +14,9 @@ import hu.cubix.hr.zoltan_sipeki.model.Employee;
 public interface EmployeeService {
 	int getPayRaisePercent(Employee employee);
 
-    public List<Employee> getAllEmployees(String sortBy, Direction sortOrder) throws PathElementException;
+    public List<Employee> getAllEmployees(Sort sort) throws PropertyReferenceException;
 
-	public List<Employee> getAllEmployees(int page, int size, String sortBy, Direction sortOrder) throws PathElementException;
+	public List<Employee> getAllEmployees(Pageable page) throws PropertyReferenceException;
 
     public Employee getEmployeeById(long id) throws EmployeeNotFoundException;
 

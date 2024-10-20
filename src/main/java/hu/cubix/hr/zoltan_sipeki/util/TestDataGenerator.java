@@ -74,10 +74,6 @@ public class TestDataGenerator {
     private static final int MIN_SALARY_MIN = 300000;
     private static final int MIN_SALARY_MAX = 1500001;
 
-    static {
-        assert(COMPANY_NAMES.size() == ADDRESSES.size() && COMPANY_NAMES.size() == REGISTRATION_NUMBERS.size());
-    }
-
     private Random random = new Random();
 
     public List<Position> generatePositions() {
