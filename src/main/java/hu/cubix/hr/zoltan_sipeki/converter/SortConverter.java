@@ -20,7 +20,7 @@ public class SortConverter implements Converter<List<String>, Sort> {
         
         var orders = new ArrayList<Order>();
         for (var param : source) {
-            var orderStr = param.toLowerCase().split(":");
+            var orderStr = param.split(":");
             if (orderStr[0] == "") {
                 continue;
             }
@@ -29,7 +29,7 @@ public class SortConverter implements Converter<List<String>, Sort> {
                 orders.add(new Order(Sort.DEFAULT_DIRECTION, orderStr[0]));
             }
             else {
-                orders.add(new Order(convertStrToDirection(orderStr[1]), orderStr[0]));
+                orders.add(new Order(convertStrToDirection(orderStr[1].toLowerCase()), orderStr[0]));
             }
         }
 
