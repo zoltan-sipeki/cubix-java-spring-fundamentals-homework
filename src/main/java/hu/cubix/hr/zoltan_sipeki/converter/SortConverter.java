@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
 
-// parameter syntax: {property_name}:[asc|desc][,{property_name}:[asc|desc]...] e.g.: salary:asc,name:desc
+// parameter syntax: {property_name}[:asc|desc][,{property_name}[:asc|desc]...] e.g.: salary:asc,name:desc
 @Component
 public class SortConverter implements Converter<List<String>, Sort> {
     @Override
@@ -29,7 +29,7 @@ public class SortConverter implements Converter<List<String>, Sort> {
                 orders.add(new Order(Sort.DEFAULT_DIRECTION, orderStr[0]));
             }
             else {
-                orders.add(new Order(convertStrToDirection(orderStr[1].toLowerCase()), orderStr[0]));
+                orders.add(new Order(convertStrToDirection(orderStr[1]), orderStr[0]));
             }
         }
 
@@ -37,6 +37,8 @@ public class SortConverter implements Converter<List<String>, Sort> {
     }
 
     private Direction convertStrToDirection(String dir) {
+        dir = dir.toLowerCase();
+        
         switch (dir) {
         case "asc":
             return Direction.ASC;
