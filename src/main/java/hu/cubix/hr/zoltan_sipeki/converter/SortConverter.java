@@ -20,11 +20,11 @@ public class SortConverter implements Converter<List<String>, Sort> {
         
         var orders = new ArrayList<Order>();
         for (var param : source) {
-            var orderStr = param.split(":");
+            var orderStr = param.toLowerCase().split(":");
             if (orderStr[0] == "") {
                 continue;
             }
-            
+
             if (orderStr.length < 2) {
                 orders.add(new Order(Sort.DEFAULT_DIRECTION, orderStr[0]));
             }
