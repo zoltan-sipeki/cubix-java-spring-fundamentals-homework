@@ -25,7 +25,7 @@ public class SortConverter implements Converter<List<String>, Sort> {
                 continue;
             }
 
-            if (orderStr.length < 2) {
+            if (orderStr.length == 1) {
                 orders.add(new Order(Sort.DEFAULT_DIRECTION, orderStr[0]));
             }
             else {
