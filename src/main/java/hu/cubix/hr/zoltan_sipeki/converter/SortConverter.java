@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
 
-// parameter syntax: {property_name}:asc|desc[,{property_name}:asc|desc...] e.g.: salary:asc,name:desc
+// parameter syntax: {property_name}:[asc|desc][,{property_name}:[asc|desc]...] e.g.: salary:asc,name:desc
 @Component
 public class SortConverter implements Converter<List<String>, Sort> {
     @Override
